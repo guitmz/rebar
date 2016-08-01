@@ -1,0 +1,6 @@
+[package]
+name = "barrust"
+version = "0.1.0"
+authors = ["Alex Taylor <alex@subnomo.me>"]
+
+[dependencies]
