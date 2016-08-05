@@ -6,13 +6,10 @@ use barrust::block::Block;
 use barrust::blocks::Battery;
 
 fn main() {
-    let mut bar = Bar::new();
+    let mut bar = Bar::new(1);
 
-    let battery = Battery::new(None);
+    let battery = Battery::new(Some("Batt:"));
 
     bar.add_block(battery);
-
-    for i in bar.blocks.iter() {
-        println!("{}", i.output());
-    }
+    bar.display();
 }
