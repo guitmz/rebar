@@ -18,8 +18,8 @@ fn get_battery() -> String {
     let mut battery = battery_cow.split_whitespace().nth(3).unwrap().to_string();
     let len = battery.len();
 
-    // Remove end comma
-    battery.truncate(len - 1);
+    // Remove end comma and percent sign
+    battery.truncate(len - 2);
 
     battery
 }
@@ -41,11 +41,11 @@ impl Block for Battery {
     fn output(&self) -> String {
         match self.icon {
             Some(ref icon) => {
-                format!("{} {}", icon, get_battery())
+                format!("{} {}%", icon, get_battery())
             },
 
             None => {
-                format!("{}", get_battery())
+                format!("{}%", get_battery())
             }
         }
     }
