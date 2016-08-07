@@ -2,12 +2,12 @@ use std::thread;
 use std::time::Duration;
 
 use block::Block;
-use blockgroup::BlockGroup;
+use module::Module;
 
 pub struct Bar {
     update_interval: u64,
     blocks: Vec<Box<Block>>,
-    groups: Vec<BlockGroup>,
+    groups: Vec<Module>,
 }
 
 impl Bar {
@@ -23,7 +23,7 @@ impl Bar {
         self.blocks.push(Box::new(block));
     }
 
-    pub fn add_blockgroup(&mut self, group: BlockGroup) {
+    pub fn add_module(&mut self, group: Module) {
         self.groups.push(group);
     }
 

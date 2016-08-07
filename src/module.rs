@@ -1,13 +1,13 @@
 use block::Block;
 use util::Align;
 
-pub struct BlockGroup {
+pub struct Module {
     blocks: Vec<Box<Block>>,
     align: String,
 }
 
-impl BlockGroup {
-   pub fn new(align: Align) -> BlockGroup {
+impl Module {
+   pub fn new(align: Align) -> Module {
        let alignchar;
 
        match align {
@@ -16,7 +16,7 @@ impl BlockGroup {
            Align::Right => alignchar = 'r',
        }
 
-       BlockGroup {
+       Module {
            blocks: Vec::new(),
            align: format!("%{{{}}}", alignchar),
        }
