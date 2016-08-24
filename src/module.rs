@@ -27,12 +27,16 @@ impl Module {
    }
 
    pub fn output(&self) -> String {
-       let mut out = self.align.to_owned();
+       let mut out = String::new();
 
        for block in self.blocks.iter() {
-           out = format!("{}{}", out, block.output());
+           out.push_str(&block.output());
+           out.push(' ');
        }
 
-       out
+       let mut align = self.align.to_owned();
+       align.push_str(&out);
+
+       align
    }
 }

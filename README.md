@@ -1,4 +1,4 @@
-# barrust
+# rustabari
 
 A status line generator for Lemonbar, written in Rust.
 

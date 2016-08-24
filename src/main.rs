@@ -1,23 +1,23 @@
 // main.rs is temporary, for testing
-extern crate barrust;
+extern crate rustabari;
 
-use barrust::bar::Bar;
-use barrust::block::Block;
-use barrust::module::Module;
-use barrust::blocks::Date;
-use barrust::blocks::Battery;
-use barrust::util::Align;
+use rustabari::bar::Bar;
+use rustabari::block::Block;
+use rustabari::module::Module;
+use rustabari::blocks::Date;
+use rustabari::blocks::Battery;
+use rustabari::util::Align;
 
 fn main() {
     // Initialize a new bar with the update interval set to 1000ms
     let mut bar = Bar::new(1000);
 
-    let time = Date::new(None, "%r");
-    let date = Date::new(None, "%Y-%m-%d");
+    let battery = Battery::new(Some("Batt:"));
+    let time = Date::new(None, "%I:%M %p");
 
     let mut module = Module::new(Align::Left);
+    module.add(battery);
     module.add(time);
-    module.add(date);
 
     bar.add_module(module);
     bar.display();

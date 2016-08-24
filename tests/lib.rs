@@ -1,9 +1,9 @@
-extern crate barrust;
+extern crate rustabari;
 
-use barrust::block::Block;
-use barrust::module::Module;
-use barrust::blocks::Date;
-use barrust::util::Align;
+use rustabari::block::Block;
+use rustabari::module::Module;
+use rustabari::blocks::Date;
+use rustabari::util::Align;
 
 #[test]
 fn test_module() {
@@ -18,5 +18,5 @@ fn test_module() {
     module.add(time);
     module.add(date);
 
-    assert_eq!(module.output(), format!("%{{l}}{}{}", time_output, date_output));
+    assert_eq!(module.output(), format!("%{{l}} {} {}", time_output, date_output));
 }

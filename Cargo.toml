@@ -1,6 +1,6 @@
 [package]
-name = "barrust"
-version = "0.1.0"
+name = "rustabari"
+version = "0.1.1"
 authors = ["Alex Taylor <alex@subnomo.me>"]
 
 [dependencies]
