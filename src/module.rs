@@ -26,12 +26,23 @@ impl Module {
        self.blocks.push(Box::new(block));
    }
 
-   pub fn output(&self) -> String {
+   pub fn output(&self, sep: Option<String>) -> String {
        let mut out = String::new();
 
-       for block in self.blocks.iter() {
+       for i in 0..self.blocks.len() {
+           let ref block = self.blocks[i];
+
            out.push_str(&block.output());
-           out.push(' ');
+
+           // Only print separator if not last black
+           match sep.to_owned() {
+               Some(s) => {
+                   if i < self.blocks.len() - 1 {
+                       out.push_str(s.as_str());
+                   }
+               },
+               None => out.push(' '),
+           }
        }
 
        let mut align = self.align.to_owned();

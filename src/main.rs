@@ -10,12 +10,12 @@ use rustabari::util::Align;
 
 fn main() {
     // Initialize a new bar with the update interval set to 1000ms
-    let mut bar = Bar::new(1000);
+    let mut bar = Bar::new(1000, Some(" | "));
 
     let battery = Battery::new(Some("Batt:"));
-    let time = Date::new(None, "%I:%M %p");
+    let time = Date::new("%I:%M %p", None);
 
-    let mut module = Module::new(Align::Left);
+    let mut module = Module::new(Align::Center);
     module.add(battery);
     module.add(time);
 

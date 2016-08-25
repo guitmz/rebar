@@ -8,7 +8,7 @@ pub struct Date {
 }
 
 impl Date {
-    pub fn new(icon: Option<&str>, format: &str) -> Date {
+    pub fn new(format: &str, icon: Option<&str>) -> Date {
         // If an icon is passed, convert it to String
         if let Some(x) = icon {
             Date {

@@ -27,14 +27,16 @@ fn get_battery() -> String {
 impl Block for Battery {
     fn new(icon: Option<&str>) -> Battery {
         // If an icon is passed, convert it to String
-        if let Some(x) = icon {
-            Battery {
-                icon: Some(String::from(x))
+        let get_icon = |i| {
+            if let Some(x) = i {
+                Some(String::from(x))
+            } else {
+                None
             }
-        } else {
-            Battery {
-                icon: None
-            }
+        };
+
+        Battery {
+            icon: get_icon(icon)
         }
     }
 

@@ -8,14 +8,24 @@ pub struct Bar {
     update_interval: u64,
     blocks: Vec<Box<Block>>,
     groups: Vec<Module>,
+    separator: Option<String>,
 }
 
 impl Bar {
-    pub fn new(updates: u64) -> Bar {
+    pub fn new(updates: u64, sep: Option<&str>) -> Bar {
+        let get_sep = |s| {
+            if let Some(x) = s {
+                Some(String::from(x))
+            } else {
+                None
+            }
+        };
+
         Bar {
             update_interval: updates,
             blocks: Vec::new(),
             groups: Vec::new(),
+            separator: get_sep(sep),
         }
     }
 
@@ -29,12 +39,21 @@ impl Bar {
 
     pub fn display(&self) {
         loop {
-            for block in self.blocks.iter() {
+            for i in 0..self.blocks.len() {
+                let ref block = self.blocks[i];
+
                 println!("{}", block.output());
+
+                if let Some(ref s) = self.separator {
+                    // Only print separator if not last black
+                    if i < self.blocks.len() - 1 {
+                        println!("{}", s);
+                    }
+                }
             }
 
             for group in self.groups.iter() {
-                println!("{}", group.output());
+                println!("{}", group.output(self.separator.to_owned()));
             }
 
             thread::sleep(Duration::from_millis(self.update_interval));
