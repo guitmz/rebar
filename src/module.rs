@@ -35,13 +35,11 @@ impl Module {
            out.push_str(&block.output());
 
            // Only print separator if not last black
-           match sep.to_owned() {
-               Some(s) => {
-                   if i < self.blocks.len() - 1 {
-                       out.push_str(s.as_str());
-                   }
-               },
-               None => out.push(' '),
+           if i < self.blocks.len() - 1 {
+               match sep.to_owned() {
+                   Some(s) => out.push_str(s.as_str()),
+                   None => out.push(' '),
+               }
            }
        }
 

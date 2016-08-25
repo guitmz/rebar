@@ -44,9 +44,9 @@ impl Bar {
 
                 println!("{}", block.output());
 
-                if let Some(ref s) = self.separator {
-                    // Only print separator if not last black
-                    if i < self.blocks.len() - 1 {
+                // Only print separator if not last black
+                if i < self.blocks.len() - 1 {
+                    if let Some(ref s) = self.separator {
                         println!("{}", s);
                     }
                 }
