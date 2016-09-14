@@ -6,6 +6,7 @@ use rustabari::block::Block;
 use rustabari::module::Module;
 use rustabari::blocks::Date;
 use rustabari::blocks::Battery;
+use rustabari::blocks::Music;
 use rustabari::util::Align;
 
 fn main() {
@@ -14,8 +15,10 @@ fn main() {
 
     let battery = Battery::new(Some("Batt:"));
     let time = Date::new("%I:%M %p", None);
+    let music = Music::new(None, Some("\u{e1a6}"));
 
     let mut module = Module::new(Align::Center);
+    module.add(music);
     module.add(battery);
     module.add(time);
 

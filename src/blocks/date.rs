@@ -27,7 +27,7 @@ impl Date {
         let datecmd = Command::new("date")
             .arg(format!("+{}", self.format))
             .output().unwrap_or_else(|e| {
-                panic!("failed to execute process: {}", e);
+                panic!("Failed to execute process: {}", e);
             });
 
         let date_cow = String::from_utf8_lossy(&datecmd.stdout);
