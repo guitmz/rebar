@@ -33,7 +33,9 @@ impl Date {
         let len = date.len();
 
         // Remove newline from date
-        date.truncate(len - 1);
+        if len > 0 {
+            date.truncate(len - 1);
+        }
 
         date
     }

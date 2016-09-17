@@ -31,7 +31,9 @@ impl Battery {
         let len = battery.len();
 
         // Remove end comma and percent sign
-        battery.truncate(len - 2);
+        if len > 1 {
+            battery.truncate(len - 2);
+        }
 
         battery
     }
