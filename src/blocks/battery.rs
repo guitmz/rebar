@@ -1,9 +1,10 @@
 use std::process::Command;
 
 use block::Block;
+use util::Align;
 
 pub struct Battery {
-    pub icon: Option<String>,
+    pub icon: Option<(String, Align)>,
 }
 
 fn get_battery() -> String {
@@ -25,11 +26,11 @@ fn get_battery() -> String {
 }
 
 impl Block for Battery {
-    fn new(icon: Option<&str>) -> Battery {
+    fn new(icon: Option<(&str, Align)>) -> Battery {
         // If an icon is passed, convert it to String
-        let get_icon = |i| {
+        let get_icon = |i: Option<(&str, Align)>| {
             if let Some(x) = i {
-                Some(String::from(x))
+                Some((String::from(x.0), x.1))
             } else {
                 None
             }
@@ -41,14 +42,15 @@ impl Block for Battery {
     }
 
     fn output(&self) -> String {
-        match self.icon {
-            Some(ref icon) => {
-                format!("{} {}%", icon, get_battery())
-            },
+        if let Some(ref x) = self.icon {
+            let (ref icon, ref align) = *x;
 
-            None => {
-                format!("{}%", get_battery())
+            match align {
+                &Align::Right => return format!("{}% {}", get_battery(), icon),
+                _ => return format!("{} {}%", icon, get_battery()),
             }
         }
+
+        get_battery()
     }
 }

@@ -1,18 +1,19 @@
 use std::process::Command;
 
 use block::Block;
+use util::Align;
 
 pub struct Date {
-    pub icon: Option<String>,
+    pub icon: Option<(String, Align)>,
     pub format: String,
 }
 
 impl Date {
-    pub fn new(format: &str, icon: Option<&str>) -> Date {
+    pub fn new(format: &str, icon: Option<(&str, Align)>) -> Date {
         // If an icon is passed, convert it to String
         if let Some(x) = icon {
             Date {
-                icon: Some(String::from(x)),
+                icon: Some((String::from(x.0), x.1)),
                 format: String::from(format),
             }
         } else {
@@ -43,11 +44,11 @@ impl Date {
 }
 
 impl Block for Date {
-    fn new(icon: Option<&str>) -> Date {
+    fn new(icon: Option<(&str, Align)>) -> Date {
         // If an icon is passed, convert it to String
         if let Some(x) = icon {
             Date {
-                icon: Some(String::from(x)),
+                icon: Some((String::from(x.0), x.1)),
                 format: String::new()
             }
         } else {
@@ -59,6 +60,15 @@ impl Block for Date {
     }
 
     fn output(&self) -> String {
+        if let Some(ref x) = self.icon {
+            let (ref icon, ref align) = *x;
+
+            match align {
+                &Align::Right => return format!("{} {}", self.get_date(), icon),
+                _ => return format!("{} {}", icon, self.get_date()),
+            }
+        }
+
         self.get_date()
     }
 }

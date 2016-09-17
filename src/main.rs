@@ -13,9 +13,9 @@ fn main() {
     // Initialize a new bar with the update interval set to 1000ms
     let mut bar = Bar::new(1000, Some(" | "));
 
-    let battery = Battery::new(Some("Batt:"));
-    let time = Date::new("%I:%M %p", None);
-    let music = Music::new(None, Some("\u{e1a6}"));
+    let battery = Battery::new(Some(("\u{e1ff}", Align::Right)));
+    let time = Date::new("%I:%M %p", Some(("\u{e015}", Align::Left)));
+    let music = Music::new(None, Some(("\u{e1a6}", Align::Left)));
 
     let mut module = Module::new(Align::Center);
     module.add(music);
