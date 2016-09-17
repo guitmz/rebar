@@ -9,25 +9,19 @@ pub struct Music {
 }
 
 impl Music {
-    pub fn new(command: Option<&str>, icon: Option<(&str, Align)>) -> Music {
-        let mut cmd = String::from("mpc current");
-
-        if let Some(x) = command {
-            cmd = String::from(x);
+    pub fn new() -> Music {
+        Music {
+            icon: None,
+            command: String::from("mpc current"),
         }
+    }
 
-        // If an icon is passed, convert it to String
-        if let Some(x) = icon {
-            Music {
-                icon: Some((String::from(x.0), x.1)),
-                command: cmd,
-            }
-        } else {
-            Music {
-                icon: None,
-                command: cmd,
-            }
-        }
+    pub fn add_icon(&mut self, icon: &str, align: Align) {
+        self.icon = Some((String::from(icon), align));
+    }
+
+    pub fn set_command(&mut self, cmd: &str) {
+        self.command = String::from(cmd);
     }
 
     fn get_song(&self) -> String {
@@ -55,8 +49,8 @@ impl Music {
 }
 
 impl Block for Music {
-    fn new(icon: Option<(&str, Align)>) -> Music {
-        Music::new(Some("mpc current"), icon)
+    fn new() -> Music {
+        Music::new()
     }
 
     fn output(&self) -> String {

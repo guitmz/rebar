@@ -12,21 +12,17 @@ pub struct Bar {
 }
 
 impl Bar {
-    pub fn new(updates: u64, sep: Option<&str>) -> Bar {
-        let get_sep = |s| {
-            if let Some(x) = s {
-                Some(String::from(x))
-            } else {
-                None
-            }
-        };
-
+    pub fn new(updates: u64) -> Bar {
         Bar {
             update_interval: updates,
             blocks: Vec::new(),
             groups: Vec::new(),
-            separator: get_sep(sep),
+            separator: None,
         }
+    }
+
+    pub fn add_separator(&mut self, sep: &str) {
+        self.separator = Some(String::from(sep));
     }
 
     pub fn add_block<T: Block + 'static>(&mut self, block: T) {
@@ -37,7 +33,7 @@ impl Bar {
         self.groups.push(group);
     }
 
-    pub fn display(&self) {
+    pub fn display(&mut self) {
         loop {
             for i in 0..self.blocks.len() {
                 let ref block = self.blocks[i];
@@ -52,8 +48,12 @@ impl Bar {
                 }
             }
 
-            for group in self.groups.iter() {
-                println!("{}", group.output(self.separator.to_owned()));
+            for group in self.groups.iter_mut() {
+                if let Some(ref s) = self.separator {
+                    group.add_separator(s);
+                }
+
+                println!("{}", group.output());
             }
 
             thread::sleep(Duration::from_millis(self.update_interval));

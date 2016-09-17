@@ -9,19 +9,15 @@ pub struct Date {
 }
 
 impl Date {
-    pub fn new(format: &str, icon: Option<(&str, Align)>) -> Date {
-        // If an icon is passed, convert it to String
-        if let Some(x) = icon {
-            Date {
-                icon: Some((String::from(x.0), x.1)),
-                format: String::from(format),
-            }
-        } else {
-            Date {
-                icon: None,
-                format: String::from(format),
-            }
+    pub fn new(format: &str) -> Date {
+        Date {
+            icon: None,
+            format: String::from(format),
         }
+    }
+
+    pub fn add_icon(&mut self, icon: &str, align: Align) {
+        self.icon = Some((String::from(icon), align));
     }
 
     fn get_date(&self) -> String {
@@ -44,18 +40,10 @@ impl Date {
 }
 
 impl Block for Date {
-    fn new(icon: Option<(&str, Align)>) -> Date {
-        // If an icon is passed, convert it to String
-        if let Some(x) = icon {
-            Date {
-                icon: Some((String::from(x.0), x.1)),
-                format: String::new()
-            }
-        } else {
-            Date {
-                icon: None,
-                format: String::new()
-            }
+    fn new() -> Date {
+        Date {
+            icon: None,
+            format: String::new()
         }
     }
 

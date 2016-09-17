@@ -4,6 +4,7 @@ use util::Align;
 pub struct Module {
     blocks: Vec<Box<Block>>,
     align: String,
+    separator: Option<String>,
 }
 
 impl Module {
@@ -19,14 +20,19 @@ impl Module {
        Module {
            blocks: Vec::new(),
            align: format!("%{{{}}}", alignchar),
+           separator: None,
        }
+   }
+
+   pub fn add_separator(&mut self, sep: &str) {
+       self.separator = Some(String::from(sep));
    }
 
    pub fn add<T: Block + 'static>(&mut self, block: T) {
        self.blocks.push(Box::new(block));
    }
 
-   pub fn output(&self, sep: Option<String>) -> String {
+   pub fn output(&self) -> String {
        let mut out = String::new();
 
        for i in 0..self.blocks.len() {
@@ -36,7 +42,7 @@ impl Module {
 
            // Only print separator if not last black
            if i < self.blocks.len() - 1 {
-               match sep.to_owned() {
+               match self.separator.to_owned() {
                    Some(s) => out.push_str(s.as_str()),
                    None => out.push(' '),
                }

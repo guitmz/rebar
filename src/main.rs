@@ -2,7 +2,6 @@
 extern crate rustabari;
 
 use rustabari::bar::Bar;
-use rustabari::block::Block;
 use rustabari::module::Module;
 use rustabari::blocks::Date;
 use rustabari::blocks::Battery;
@@ -11,11 +10,17 @@ use rustabari::util::Align;
 
 fn main() {
     // Initialize a new bar with the update interval set to 1000ms
-    let mut bar = Bar::new(1000, Some(" | "));
+    let mut bar = Bar::new(1000);
+    bar.add_separator(" | ");
 
-    let battery = Battery::new(Some(("\u{e1ff}", Align::Right)));
-    let time = Date::new("%I:%M %p", Some(("\u{e015}", Align::Left)));
-    let music = Music::new(None, Some(("\u{e1a6}", Align::Left)));
+    let mut battery = Battery::new();
+    battery.add_icon("\u{e1ff}", Align::Right);
+
+    let mut time = Date::new("%I:%M %p");
+    time.add_icon("\u{e015}", Align::Left);
+
+    let mut music = Music::new();
+    music.add_icon("\u{e1a6}", Align::Left);
 
     let mut module = Module::new(Align::Center);
     module.add(music);
