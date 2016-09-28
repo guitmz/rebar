@@ -9,6 +9,8 @@ pub struct Bar {
     blocks: Vec<Box<Block>>,
     groups: Vec<Module>,
     separator: Option<String>,
+    background: Option<String>,
+    foreground: Option<String>,
 }
 
 impl Bar {
@@ -18,7 +20,17 @@ impl Bar {
             blocks: Vec::new(),
             groups: Vec::new(),
             separator: None,
+            background: None,
+            foreground: None,
         }
+    }
+
+    pub fn set_background(&mut self, color: &str) {
+        self.background = Some(String::from(color));
+    }
+
+    pub fn set_foreground(&mut self, color: &str) {
+        self.foreground = Some(String::from(color));
     }
 
     pub fn add_separator(&mut self, sep: &str) {
@@ -35,26 +47,39 @@ impl Bar {
 
     pub fn display(&mut self) {
         loop {
+            // Print background and foreground
+            if let Some(ref bg) = self.background {
+                print!("%{{B{}}}", bg);
+            }
+
+            if let Some(ref fg) = self.foreground {
+                print!("%{{F{}}}", fg);
+            }
+
+            // Print blocks added to bar
             for i in 0..self.blocks.len() {
                 let ref block = self.blocks[i];
 
-                println!("{}", block.output());
+                print!("{}", block.output());
 
-                // Only print separator if not last black
+                // Only print separator if not last block
                 if i < self.blocks.len() - 1 {
                     if let Some(ref s) = self.separator {
-                        println!("{}", s);
+                        print!("{}", s);
                     }
                 }
             }
 
+            // Print each module
             for group in self.groups.iter_mut() {
                 if let Some(ref s) = self.separator {
                     group.add_separator(s);
                 }
 
-                println!("{}", group.output());
+                print!("{}", group.output());
             }
+
+            println!("");
 
             thread::sleep(Duration::from_millis(self.update_interval));
         }

@@ -5,6 +5,8 @@ pub struct Module {
     blocks: Vec<Box<Block>>,
     align: String,
     separator: Option<String>,
+    background: Option<String>,
+    foreground: Option<String>,
 }
 
 impl Module {
@@ -21,7 +23,17 @@ impl Module {
            blocks: Vec::new(),
            align: format!("%{{{}}}", alignchar),
            separator: None,
+           background: None,
+           foreground: None,
        }
+   }
+
+   pub fn set_background(&mut self, color: &str) {
+       self.background = Some(String::from(color));
+   }
+
+   pub fn set_foreground(&mut self, color: &str) {
+       self.foreground = Some(String::from(color));
    }
 
    pub fn add_separator(&mut self, sep: &str) {
@@ -49,9 +61,19 @@ impl Module {
            }
        }
 
-       let mut align = self.align.to_owned();
-       align.push_str(&out);
+       let mut res = String::new();
 
-       align
+       if let Some(ref bg) = self.background {
+           res.push_str(&format!("%{{B{}}}", bg));
+       }
+
+       if let Some(ref fg) = self.foreground {
+           res.push_str(&format!("%{{F{}}}", fg));
+       }
+
+       res.push_str(&self.align.to_owned());
+       res.push_str(&out);
+
+       res
    }
 }
