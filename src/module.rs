@@ -52,7 +52,7 @@ impl Module {
 
            out.push_str(&block.output());
 
-           // Only print separator if not last black
+           // Only print separator if not last block
            if i < self.blocks.len() - 1 {
                match self.separator.to_owned() {
                    Some(s) => out.push_str(s.as_str()),

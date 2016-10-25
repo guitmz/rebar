@@ -16,6 +16,9 @@ fn main() {
     let mut battery = Battery::new();
     battery.add_icon("\u{e1ff}", Align::Right);
 
+    let mut date = Date::new("%a %b %d");
+    date.add_icon("\u{e1cd}", Align::Left);
+
     let mut time = Date::new("%I:%M %p");
     time.add_icon("\u{e015}", Align::Left);
 
@@ -23,8 +26,10 @@ fn main() {
     music.add_icon("\u{e1a6}", Align::Left);
 
     let mut module = Module::new(Align::Center);
+    module.add_separator(" | ");
     module.add(music);
     module.add(battery);
+    module.add(date);
     module.add(time);
 
     bar.add_module(module);

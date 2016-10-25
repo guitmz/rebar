@@ -72,10 +72,6 @@ impl Bar {
 
             // Print each module
             for group in self.groups.iter_mut() {
-                if let Some(ref s) = self.separator {
-                    group.add_separator(s);
-                }
-
                 print!("{}", group.output());
             }
 
