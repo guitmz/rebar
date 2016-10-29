@@ -98,6 +98,11 @@ impl Block for Wifi {
             let strength = run_command(strength_cmd)
                                .parse::<i32>()
                                .unwrap_or_else(|e| {
+                                   // If not connected to wifi, don't panic
+                                   if ssid.is_empty() {
+                                       return 0;
+                                   }
+
                                    panic!("Couldn't parse strength. Error: {}", e);
                                });
 
