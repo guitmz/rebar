@@ -6,6 +6,7 @@ use rustabari::module::Module;
 use rustabari::blocks::Date;
 use rustabari::blocks::Battery;
 use rustabari::blocks::Music;
+use rustabari::blocks::Wifi;
 use rustabari::util::Align;
 
 fn main() {
@@ -25,8 +26,13 @@ fn main() {
     let mut music = Music::new();
     music.add_icon("\u{e1a6}", Align::Left);
 
+    let mut wifi = Wifi::new();
+    wifi.add_icons(&["\u{e0f1}", "\u{e0f2}", "\u{e0f3}"], Align::Left);
+    wifi.set_device("wlp2s0");
+
     let mut module = Module::new(Align::Center);
     module.add_separator(" | ");
+    module.add(wifi);
     module.add(music);
     module.add(battery);
     module.add(date);
