@@ -48,7 +48,7 @@ impl Module {
        let mut out = String::new();
 
        for i in 0..self.blocks.len() {
-           let ref block = self.blocks[i];
+           let block = &self.blocks[i];
 
            out.push_str(&block.output());
 

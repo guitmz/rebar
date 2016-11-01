@@ -3,6 +3,7 @@ use std::process::Command;
 use block::Block;
 use util::Align;
 
+#[derive(Default)]
 pub struct Battery {
     pub icon: Option<(String, Align)>,
 }
@@ -48,8 +49,8 @@ impl Block for Battery {
         if let Some(ref x) = self.icon {
             let (ref icon, ref align) = *x;
 
-            match align {
-                &Align::Right => return format!("{}% {}", self.get_battery(), icon),
+            match *align {
+                Align::Right => return format!("{}% {}", self.get_battery(), icon),
                 _ => return format!("{} {}%", icon, self.get_battery()),
             }
         }

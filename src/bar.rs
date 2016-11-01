@@ -58,7 +58,7 @@ impl Bar {
 
             // Print blocks added to bar
             for i in 0..self.blocks.len() {
-                let ref block = self.blocks[i];
+                let block = &self.blocks[i];
 
                 print!("{}", block.output());
 
@@ -71,7 +71,7 @@ impl Bar {
             }
 
             // Print each module
-            for group in self.groups.iter_mut() {
+            for group in &mut self.groups {
                 print!("{}", group.output());
             }
 

@@ -3,6 +3,7 @@ use std::process::Command;
 use block::Block;
 use util::Align;
 
+#[derive(Default)]
 pub struct Date {
     pub icon: Option<(String, Align)>,
     pub format: String,
@@ -53,8 +54,8 @@ impl Block for Date {
         if let Some(ref x) = self.icon {
             let (ref icon, ref align) = *x;
 
-            match align {
-                &Align::Right => return format!("{} {}", self.get_date(), icon),
+            match *align {
+                Align::Right => return format!("{} {}", self.get_date(), icon),
                 _ => return format!("{} {}", icon, self.get_date()),
             }
         }

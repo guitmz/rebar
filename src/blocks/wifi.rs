@@ -3,6 +3,7 @@ use std::process::Command;
 use block::Block;
 use util::Align;
 
+#[derive(Default)]
 pub struct Wifi {
     pub icon: Option<(String, Align)>,
     pub icons: Option<(Vec<String>, Align)>,
@@ -84,8 +85,8 @@ impl Block for Wifi {
         if let Some(ref x) = self.icon {
             let (ref icon, ref align) = *x;
 
-            match align {
-                &Align::Right => return format!("{} {}", ssid, icon),
+            match *align {
+                Align::Right => return format!("{} {}", ssid, icon),
                 _ => return format!("{} {}", icon, ssid),
             }
         }
@@ -116,8 +117,8 @@ impl Block for Wifi {
                 icon = 0;
             }
 
-            match align {
-                &Align::Right => return format!("{} {}", ssid, icons[icon]),
+            match *align {
+                Align::Right => return format!("{} {}", ssid, icons[icon]),
                 _ => return format!("{} {}", icons[icon], ssid),
             }
         }

@@ -3,6 +3,7 @@ use std::process::Command;
 use block::Block;
 use util::Align;
 
+#[derive(Default)]
 pub struct Music {
     pub icon: Option<(String, Align)>,
     pub command: String,
@@ -25,7 +26,7 @@ impl Music {
     }
 
     fn get_song(&self) -> String {
-        let cmd_split = self.command.split(" ");
+        let cmd_split = self.command.split(' ');
         let mut cmds: Vec<&str> = cmd_split.collect();
 
         let music_cmd = Command::new(cmds.remove(0))
@@ -57,8 +58,8 @@ impl Block for Music {
         if let Some(ref x) = self.icon {
             let (ref icon, ref align) = *x;
 
-            match align {
-                &Align::Right => return format!("{} {}", self.get_song(), icon),
+            match *align {
+                Align::Right => return format!("{} {}", self.get_song(), icon),
                 _ => return format!("{} {}", icon, self.get_song()),
             }
         }
