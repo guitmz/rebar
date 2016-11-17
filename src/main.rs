@@ -15,7 +15,7 @@ fn main() {
     bar.add_separator(" | ");
 
     let mut battery = Battery::new();
-    battery.add_icon("\u{e1ff}", Align::Right);
+    battery.add_icons(["\u{e1fd}", "\u{e1fe}", "\u{e1ff}"], Align::Right);
 
     let mut date = Date::new("%a %b %d");
     date.add_icon("\u{e1cd}", Align::Left);
@@ -25,6 +25,7 @@ fn main() {
 
     let mut music = Music::new();
     music.add_icon("\u{e1a6}", Align::Left);
+    music.set_command("gpmdp-remote current");
 
     let mut wifi = Wifi::new();
     wifi.add_icons(["\u{e0f1}", "\u{e0f2}", "\u{e0f3}"], Align::Left);
