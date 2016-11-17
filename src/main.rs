@@ -27,7 +27,7 @@ fn main() {
     music.add_icon("\u{e1a6}", Align::Left);
 
     let mut wifi = Wifi::new();
-    wifi.add_icons(&["\u{e0f1}", "\u{e0f2}", "\u{e0f3}"], Align::Left);
+    wifi.add_icons(["\u{e0f1}", "\u{e0f2}", "\u{e0f3}"], Align::Left);
     wifi.set_device("wlp2s0");
 
     let mut module = Module::new(Align::Center);

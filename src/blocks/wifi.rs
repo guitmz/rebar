@@ -29,7 +29,7 @@ impl Wifi {
     }
 
     // Can also accept 3 different icons, arranged from low to high connection strength
-    pub fn add_icons(&mut self, icons: &[&str; 3], align: Align) {
+    pub fn add_icons(&mut self, icons: [&str; 3], align: Align) {
         let mut m_icons: Vec<String> = Vec::new();
 
         for icon in icons.iter() {
