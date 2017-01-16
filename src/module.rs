@@ -11,17 +11,13 @@ pub struct Module {
 
 impl Module {
    pub fn new(align: Align) -> Module {
-       let alignchar;
-
-       match align {
-           Align::Left => alignchar = 'l',
-           Align::Center => alignchar = 'c',
-           Align::Right => alignchar = 'r',
-       }
-
        Module {
            blocks: Vec::new(),
-           align: format!("%{{{}}}", alignchar),
+           align: format!("%{{{}}}", match align {
+               Align::Left => 'l',
+               Align::Center => 'c',
+               Align::Right => 'r',
+           }),
            separator: None,
            background: None,
            foreground: None,
