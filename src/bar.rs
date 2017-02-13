@@ -111,6 +111,8 @@ impl Bar {
 
                 self.run();
             }
+
+            thread::sleep(Duration::from_millis(100));
         }
     }
 }
