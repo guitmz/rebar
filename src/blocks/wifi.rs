@@ -1,7 +1,6 @@
-use std::process::Command;
-
 use block::Block;
 use util::Align;
+use util::run_command;
 
 #[derive(Default)]
 pub struct Wifi {
@@ -50,27 +49,6 @@ impl Wifi {
     pub fn set_strength_cmd(&mut self, cmd: &str) {
         self.strength_cmd = String::from(cmd);
     }
-}
-
-fn run_command(cmd: String) -> String {
-    let command = Command::new("bash")
-        .arg("-c")
-        .arg(cmd)
-        .output().unwrap_or_else(|e| {
-            panic!("Failed to execute process: {}", e);
-        });
-
-    let cmd_cow = String::from_utf8_lossy(&command.stdout);
-
-    let mut out = cmd_cow.to_string();
-    let len = out.len();
-
-    // Remove newline
-    if len > 0 {
-        out.truncate(len - 1);
-    }
-
-    out
 }
 
 impl Block for Wifi {

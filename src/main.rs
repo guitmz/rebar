@@ -7,11 +7,13 @@ use rustabari::blocks::Date;
 use rustabari::blocks::Battery;
 use rustabari::blocks::Music;
 use rustabari::blocks::Wifi;
+use rustabari::blocks::Wsp;
 use rustabari::util::Align;
+use rustabari::util::Workspaces;
 
 fn main() {
-    // Initialize a new bar with the update interval set to 1000ms
-    let mut bar = Bar::new(1000);
+    // Initialize a new bar with the update interval set to 1s
+    let mut bar = Bar::new(1);
     bar.add_separator(" | ");
 
     let mut battery = Battery::new();
@@ -31,6 +33,13 @@ fn main() {
     wifi.add_icons(["\u{e0f1}", "\u{e0f2}", "\u{e0f3}"], Align::Left);
     wifi.set_device("wlp2s0");
 
+    let mut wsp = Wsp::new();
+    wsp.set_icon("\u{e001}");
+    wsp.set_active_icon("\u{e000}");
+
+    let mut mod1 = Module::new(Align::Left);
+    mod1.add(wsp);
+
     let mut module = Module::new(Align::Center);
     module.add_separator(" | ");
     module.add(wifi);
@@ -39,6 +48,7 @@ fn main() {
     module.add(date);
     module.add(time);
 
+    bar.add_module(mod1);
     bar.add_module(module);
-    bar.display();
+    bar.subscribe(Workspaces::Bspwm);
 }
