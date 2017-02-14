@@ -6,6 +6,7 @@ use rustabari::module::Module;
 use rustabari::blocks::Date;
 use rustabari::blocks::Battery;
 use rustabari::blocks::Music;
+use rustabari::blocks::Title;
 use rustabari::blocks::Wifi;
 use rustabari::blocks::Wsp;
 use rustabari::util::Align;
@@ -40,7 +41,12 @@ fn main() {
     let mut mod1 = Module::new(Align::Left);
     mod1.add(wsp);
 
-    let mut module = Module::new(Align::Center);
+    let title = Title::new();
+
+    let mut mod2 = Module::new(Align::Center);
+    mod2.add(title);
+
+    let mut module = Module::new(Align::Right);
     module.add_separator(" | ");
     module.add(wifi);
     module.add(music);
@@ -49,6 +55,7 @@ fn main() {
     module.add(time);
 
     bar.add_module(mod1);
+    bar.add_module(mod2);
     bar.add_module(module);
     bar.subscribe(Workspaces::Bspwm);
 }
