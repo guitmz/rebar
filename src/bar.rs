@@ -35,12 +35,16 @@ impl Bar {
         self.foreground = Some(String::from(color));
     }
 
-    pub fn add_separator(&mut self, sep: &str) {
+    pub fn set_separator(&mut self, sep: &str) {
         self.separator = Some(String::from(sep));
     }
 
     pub fn add_block<T: Block + 'static>(&mut self, block: T) {
         self.blocks.push(Box::new(block));
+    }
+
+    pub fn add_boxed(&mut self, block: Box<Block>) {
+        self.blocks.push(block);
     }
 
     pub fn add_module(&mut self, group: Module) {

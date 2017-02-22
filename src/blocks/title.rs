@@ -8,13 +8,13 @@ pub struct Title {
 impl Title {
     pub fn new() -> Title {
         Title {
-            
+
         }
     }
 
     pub fn get_title(&self) -> String {
         let title = run_command("xdotool getwindowname $(xdotool getactivewindow)");
-        
+
         // Truncate long titles
         if title.chars().count() > 50 {
             let mut end = 50;

@@ -7,7 +7,7 @@ pub struct Bspwm {
 
 impl WindowManager for Bspwm {
     fn new() -> Bspwm {
-        Bspwm { 
+        Bspwm {
             num: run_i32("bspc query -D | wc -l"),
         }
     }
@@ -18,7 +18,7 @@ impl WindowManager for Bspwm {
 
     fn active_desktops(&self) -> Vec<i32> {
         let mut active = Vec::new();
-        
+
         for i in 0..self.num {
             let num = run_i32(format!("bspc query -N -d {} | wc -l", i));
 

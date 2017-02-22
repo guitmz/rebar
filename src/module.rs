@@ -40,6 +40,10 @@ impl Module {
        self.blocks.push(Box::new(block));
    }
 
+   pub fn add_boxed(&mut self, block: Box<Block>) {
+       self.blocks.push(block);
+   }
+
    pub fn output(&self) -> String {
        let mut out = String::new();
 
