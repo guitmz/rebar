@@ -1,7 +1,7 @@
 use block::Block;
 use blocks::wm::*;
 use wm::WindowManager;
-use util::Workspaces;
+use util::WindowManagers;
 
 pub struct Wsp {
     wm: Box<WindowManager>,
@@ -18,7 +18,7 @@ impl Wsp {
         }
     }
 
-    pub fn set_wm(&mut self, wm: Workspaces) {
+    pub fn set_wm(&mut self, wm: WindowManagers) {
         self.wm = match wm {
             // I3 => Box::new(I3::new()),
             _ => Box::new(Bspwm::new()),

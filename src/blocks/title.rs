@@ -16,8 +16,15 @@ impl Title {
         let title = run_command("xdotool getwindowname $(xdotool getactivewindow)");
         
         // Truncate long titles
-        if title.len() > 50 {
-            return title[0..50].to_string() + "...";
+        if title.chars().count() > 50 {
+            let mut end = 50;
+
+            // Don't end on a space
+            while title.chars().nth(end - 1).unwrap() == ' ' {
+                end -= 1;
+            }
+
+            return title.chars().take(end).collect::<String>() + "...";
         }
 
         title

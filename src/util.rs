@@ -7,7 +7,7 @@ pub enum Align {
 }
 
 #[derive(Debug)]
-pub enum Workspaces {
+pub enum WindowManagers {
     Bspwm,
     I3,
 }

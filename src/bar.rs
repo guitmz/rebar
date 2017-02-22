@@ -1,16 +1,15 @@
 use std::thread;
 use std::time::Duration;
-use time::{get_time};
+use time::get_time;
 
 use block::Block;
 use module::Module;
-use util::Workspaces;
-use util::{run_i32, run_bg};
+use util::{WindowManagers, run_bg, run_i32};
 
 pub struct Bar {
     update_interval: u64,
     blocks: Vec<Box<Block>>,
-    groups: Vec<Module>,
+    modules: Vec<Module>,
     separator: Option<String>,
     background: Option<String>,
     foreground: Option<String>,
@@ -21,7 +20,7 @@ impl Bar {
         Bar {
             update_interval: updates,
             blocks: Vec::new(),
-            groups: Vec::new(),
+            modules: Vec::new(),
             separator: None,
             background: None,
             foreground: None,
@@ -45,7 +44,7 @@ impl Bar {
     }
 
     pub fn add_module(&mut self, group: Module) {
-        self.groups.push(group);
+        self.modules.push(group);
     }
 
     fn run(&mut self) {
@@ -73,7 +72,7 @@ impl Bar {
         }
 
         // Print each module
-        for group in &mut self.groups {
+        for group in &mut self.modules {
             print!("{}", group.output());
         }
 
@@ -88,7 +87,7 @@ impl Bar {
         }
     }
 
-    pub fn subscribe(&mut self, wsp: Workspaces) {
+    pub fn subscribe(&mut self, wsp: WindowManagers) {
         match wsp {
             // Just bspwm for now
             _ => run_bg("bspc subscribe > /tmp/rustabari_subscribe"),

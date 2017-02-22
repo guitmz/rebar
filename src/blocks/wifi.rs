@@ -1,6 +1,5 @@
 use block::Block;
-use util::Align;
-use util::run_command;
+use util::{Align, run_command};
 
 #[derive(Default)]
 pub struct Wifi {

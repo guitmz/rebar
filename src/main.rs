@@ -1,21 +1,22 @@
-// main.rs is temporary, for testing
-extern crate rustabari;
+extern crate time;
 
-use rustabari::bar::Bar;
-use rustabari::module::Module;
-use rustabari::blocks::Date;
-use rustabari::blocks::Battery;
-use rustabari::blocks::Music;
-use rustabari::blocks::Title;
-use rustabari::blocks::Wifi;
-use rustabari::blocks::Wsp;
-use rustabari::util::Align;
-use rustabari::util::Workspaces;
+mod bar;
+mod block;
+mod module;
+mod blocks;
+mod util;
+mod wm;
+
+use bar::Bar;
+use module::Module;
+use blocks::*;
+use util::{Align, WindowManagers};
 
 fn main() {
     // Initialize a new bar with the update interval set to 1s
     let mut bar = Bar::new(1);
     bar.add_separator(" | ");
+    bar.set_foreground("#444444");
 
     let mut battery = Battery::new();
     battery.add_icons(["\u{e1fd}", "\u{e1fe}", "\u{e1ff}"], Align::Right);
@@ -57,5 +58,5 @@ fn main() {
     bar.add_module(mod1);
     bar.add_module(mod2);
     bar.add_module(module);
-    bar.subscribe(Workspaces::Bspwm);
+    bar.subscribe(WindowManagers::Bspwm);
 }
