@@ -2,13 +2,13 @@ use block::Block;
 use util::run_command;
 
 pub struct Title {
-
+    max_chars: usize,
 }
 
 impl Title {
-    pub fn new() -> Title {
+    pub fn new(max: usize) -> Title {
         Title {
-
+            max_chars: max,
         }
     }
 
@@ -16,8 +16,8 @@ impl Title {
         let title = run_command("xdotool getwindowname $(xdotool getactivewindow)");
 
         // Truncate long titles
-        if title.chars().count() > 50 {
-            let mut end = 50;
+        if title.chars().count() > self.max_chars {
+            let mut end = self.max_chars;
 
             // Don't end on a space
             while title.chars().nth(end - 1).unwrap() == ' ' {
@@ -33,7 +33,7 @@ impl Title {
 
 impl Block for Title {
     fn new() -> Title {
-        Title::new()
+        Title::new(50)
     }
 
     fn output(&self) -> String {

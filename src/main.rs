@@ -55,6 +55,7 @@ struct CBlock {
     device: Option<String>,
     command: Option<String>,
     format: Option<String>,
+    max_chars: Option<usize>,
 }
 
 fn create_config() -> PathBuf {
@@ -199,7 +200,13 @@ fn build_block(block: &CBlock) -> Box<Block> {
             Box::new(wsp)
         },
         "title" => {
-            Box::new(Title::new())
+            let mut max_chars: usize = 50;
+
+            if let Some(ref max) = block.max_chars {
+                max_chars = *max;
+            }
+
+            Box::new(Title::new(max_chars))
         },
         _ => panic!("Unrecognized kind \"{}\"", block.kind),
     }
