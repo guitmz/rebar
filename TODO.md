@@ -1,0 +1,3 @@
+- [ ] Mouse actions
+- [ ] Underline
+- [ ] Subprocess lemonbar
