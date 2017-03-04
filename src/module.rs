@@ -3,7 +3,7 @@ use util::Align;
 
 pub struct Module {
     blocks: Vec<Box<Block>>,
-    align: String,
+    align: Option<String>,
     separator: Option<String>,
     background: Option<String>,
     foreground: Option<String>,
@@ -13,11 +13,12 @@ impl Module {
    pub fn new(align: Align) -> Module {
        Module {
            blocks: Vec::new(),
-           align: format!("%{{{}}}", match align {
-               Align::Left => 'l',
-               Align::Center => 'c',
-               Align::Right => 'r',
-           }),
+           align: match align {
+               Align::Left => Some("%{l}".to_string()),
+               Align::Center => Some("%{c}".to_string()),
+               Align::Right => Some("%{r}".to_string()),
+               Align::None => None,
+           },
            separator: None,
            background: None,
            foreground: None,
@@ -71,7 +72,10 @@ impl Module {
            res.push_str(&format!("%{{F{}}}", fg));
        }
 
-       res.push_str(&self.align.to_owned());
+       if let Some(ref align) = self.align {
+           res.push_str(align);
+       }
+
        res.push_str(&out);
 
        res

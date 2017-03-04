@@ -4,6 +4,7 @@ pub enum Align {
     Left,
     Center,
     Right,
+    None,
 }
 
 #[derive(Debug)]

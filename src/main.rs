@@ -40,7 +40,7 @@ struct CBar {
 
 #[derive(Debug, Deserialize)]
 struct CModule {
-    align: String,
+    align: Option<String>,
     separator: Option<String>,
     block: Option<Vec<CBlock>>,
 }
@@ -107,11 +107,12 @@ fn parse_config() -> Config {
     config
 }
 
-fn align(align_string: &String) -> Align {
-    match align_string.as_ref() {
+fn align<T: Into<String>>(align_string: T) -> Align {
+    match align_string.into().as_ref() {
+        "left" => Align::Left,
         "center" => Align::Center,
         "right" => Align::Right,
-        _ => Align::Left,
+        _ => Align::None,
     }
 }
 
@@ -123,13 +124,13 @@ fn build_block(block: &CBlock) -> Box<Block> {
             // Add icon(s)
             if let Some(ref icon_align) = block.icon_align {
                 if let Some(ref icon) = block.icon {
-                    battery.add_icon(icon.as_str(), align(&icon_align));
+                    battery.add_icon(icon.as_str(), align(icon_align.to_owned()));
                 } else if let Some(ref icons) = block.icons {
                     battery.add_icons([
                         icons[0].as_str(),
                         icons[1].as_str(),
                         icons[2].as_str(),
-                    ], align(&icon_align));
+                    ], align(icon_align.to_owned()));
                 }
             }
 
@@ -142,7 +143,7 @@ fn build_block(block: &CBlock) -> Box<Block> {
 
                 if let Some(ref icon_align) = block.icon_align {
                     if let Some(ref icon) = block.icon {
-                        date.add_icon(icon, align(&icon_align));
+                        date.add_icon(icon, align(icon_align.to_owned()));
                     }
                 }
 
@@ -156,7 +157,7 @@ fn build_block(block: &CBlock) -> Box<Block> {
 
             if let Some(ref icon_align) = block.icon_align {
                 if let Some(ref icon) = block.icon {
-                    music.add_icon(icon, align(&icon_align));
+                    music.add_icon(icon, align(icon_align.to_owned()));
                 }
             }
 
@@ -171,13 +172,13 @@ fn build_block(block: &CBlock) -> Box<Block> {
 
             if let Some(ref icon_align) = block.icon_align {
                 if let Some(ref icon) = block.icon {
-                    wifi.add_icon(icon, align(&icon_align));
+                    wifi.add_icon(icon, align(icon_align.to_owned()));
                 } else if let Some(ref icons) = block.icons {
                     wifi.add_icons([
                         icons[0].as_str(),
                         icons[1].as_str(),
                         icons[2].as_str(),
-                    ], align(&icon_align));
+                    ], align(icon_align.to_owned()));
                 }
             }
 
@@ -208,12 +209,24 @@ fn build_block(block: &CBlock) -> Box<Block> {
 
             Box::new(Title::new(max_chars))
         },
+        "custom" => {
+            let mut custom = Custom::new();
+
+            if let Some(ref command) = block.command {
+                custom.set_command(command.to_owned());
+            }
+
+            Box::new(custom)
+        },
         _ => panic!("Unrecognized kind \"{}\"", block.kind),
     }
 }
 
 fn build_module(cmodule: &CModule) -> Module {
-    let mut module = Module::new(align(&cmodule.align));
+    let mut module = Module::new(align(match cmodule.align {
+        Some(ref x) => x,
+        None => "none",
+    }));
 
     if let Some(ref sep) = cmodule.separator {
         module.add_separator(sep.as_str());
