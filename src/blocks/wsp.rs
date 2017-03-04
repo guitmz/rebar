@@ -41,15 +41,23 @@ impl Block for Wsp {
 
     fn output(&self) -> String {
         let current = self.wm.current_desktop();
+        let num = self.wm.num_desktops();
 
-        for desktop in 0..self.wm.num_desktops() {
+        let mut out = String::new();
+
+        for desktop in 0..num {
             if desktop == current - 1 {
-                print!("{} ", self.active_icon);
+                out.push_str(&self.active_icon);
             } else {
-                print!("{} ", self.icon);
+                out.push_str(&self.icon);
+            }
+
+            // Padding after each except end
+            if desktop < num - 1 {
+                out.push_str(" ");
             }
         }
 
-        String::new()
+        out
     }
 }
