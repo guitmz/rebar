@@ -73,7 +73,7 @@ impl Block for Wifi {
 
             let strength_cmd = str::replace(self.strength_cmd.as_str(), "{}",
                                             self.device.as_str());
-            let strength = run_command(strength_cmd)
+            let mut strength = run_command(strength_cmd)
                                .parse::<i32>()
                                .unwrap_or_else(|e| {
                                    // If not connected to wifi, don't panic
@@ -84,11 +84,14 @@ impl Block for Wifi {
                                    panic!("Couldn't parse strength. Error: {}", e);
                                });
 
+            // Convert dBm to percentage
+            strength = 2 * (strength + 100);
+
             let icon: usize;
 
-            if strength > -50 {
+            if strength > 66 {
                 icon = 2;
-            } else if strength > -70 {
+            } else if strength > 33 {
                 icon = 1;
             } else {
                 icon = 0;
