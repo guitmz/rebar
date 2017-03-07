@@ -55,9 +55,7 @@ impl Block for Music {
     }
 
     fn output(&self) -> String {
-        if let Some(ref x) = self.icon {
-            let (ref icon, ref align) = *x;
-
+        if let Some((ref icon, ref align)) = self.icon {
             match *align {
                 Align::Right => return format!("{} {}", self.get_song(), icon),
                 _ => return format!("{} {}", icon, self.get_song()),

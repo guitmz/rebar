@@ -59,18 +59,14 @@ impl Block for Battery {
     }
 
     fn output(&self) -> String {
-        if let Some(ref x) = self.icon {
-            let (ref icon, ref align) = *x;
-
+        if let Some((ref icon, ref align)) = self.icon {
             match *align {
                 Align::Right => return format!("{}% {}", self.get_battery(), icon),
                 _ => return format!("{} {}%", icon, self.get_battery()),
             }
         }
 
-        if let Some(ref x) = self.icons {
-            let (ref icons, ref align) = *x;
-
+        if let Some((ref icons, ref align)) = self.icons {
             let battery = self.get_battery()
                               .parse::<i32>()
                               .unwrap_or_else(|e| {

@@ -59,18 +59,14 @@ impl Block for Wifi {
         let ssid_cmd = str::replace(self.ssid_cmd.as_str(), "{}", self.device.as_str());
         let ssid = run_command(ssid_cmd);
 
-        if let Some(ref x) = self.icon {
-            let (ref icon, ref align) = *x;
-
+        if let Some((ref icon, ref align)) = self.icon {
             match *align {
                 Align::Right => return format!("{} {}", ssid, icon),
                 _ => return format!("{} {}", icon, ssid),
             }
         }
 
-        if let Some(ref x) = self.icons {
-            let (ref icons, ref align) = *x;
-
+        if let Some((ref icons, ref align)) = self.icons {
             let strength_cmd = str::replace(self.strength_cmd.as_str(), "{}",
                                             self.device.as_str());
             let mut strength = run_command(strength_cmd)
