@@ -77,6 +77,14 @@ impl Bar {
 
         // Print each module
         for group in &mut self.modules {
+            if let Some(ref bg) = self.background {
+                group.set_global_background(bg);
+            }
+
+            if let Some(ref fg) = self.foreground {
+                group.set_global_foreground(fg);
+            }
+
             print!("{}", group.output());
         }
 
@@ -105,6 +113,7 @@ impl Bar {
             let len = run_i32("cat /tmp/rustabari_subscribe | wc -l");
             let elapsed = get_time().sec - inital;
 
+            // Update on WM action and every `self.update_interval` seconds
             if len != file_length {
                 file_length = len;
 

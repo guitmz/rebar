@@ -42,6 +42,8 @@ struct CBar {
 struct CModule {
     align: Option<String>,
     separator: Option<String>,
+    background: Option<String>,
+    foreground: Option<String>,
     block: Option<Vec<CBlock>>,
 }
 
@@ -232,6 +234,14 @@ fn build_module(cmodule: &CModule) -> Module {
         module.add_separator(sep.as_str());
     }
 
+    if let Some(ref bg) = cmodule.background {
+        module.set_background(bg);
+    }
+
+    if let Some(ref fg) = cmodule.foreground {
+        module.set_foreground(fg);
+    }
+
     if let Some(ref blocks) = cmodule.block {
         for block in blocks {
             module.add_boxed(build_block(&block));
@@ -280,6 +290,7 @@ fn main() {
         bar.add_module(module);
     }
 
+    // TODO: Subprocess lemonbar
     // Run
     if let Some(ref wm) = config.bar.wm {
         match wm.as_ref() {
