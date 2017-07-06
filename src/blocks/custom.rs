@@ -1,5 +1,3 @@
-use std::process::Command;
-
 use block::Block;
 use util::{Align, run_command};
 

@@ -69,29 +69,23 @@ impl Block for Wifi {
         if let Some((ref icons, ref align)) = self.icons {
             let strength_cmd = str::replace(self.strength_cmd.as_str(), "{}",
                                             self.device.as_str());
-            let mut strength = run_command(strength_cmd)
-                               .parse::<i32>()
-                               .unwrap_or_else(|e| {
-                                   // If not connected to wifi, don't panic
-                                   if ssid.is_empty() {
-                                       return 0;
-                                   }
 
-                                   panic!("Couldn't parse strength. Error: {}", e);
-                               });
+            let mut strength = if !ssid.is_empty() {
+                run_command(strength_cmd)
+                   .parse::<i32>()
+                   .unwrap_or_else(|e| panic!("Couldn't parse strength. Error: {}", e))
+            } else {
+                0
+            };
 
             // Convert dBm to percentage
             strength = 2 * (strength + 100);
 
-            let icon: usize;
-
-            if strength > 66 {
-                icon = 2;
-            } else if strength > 33 {
-                icon = 1;
-            } else {
-                icon = 0;
-            }
+            let icon: usize = match strength {
+                66...300 => 2,
+                33...65 => 1,
+                _ => 0
+            };
 
             match *align {
                 Align::Right => return format!("{} {}", ssid, icons[icon]),
