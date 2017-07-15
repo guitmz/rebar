@@ -1,13 +1,22 @@
 #[macro_use]
 extern crate serde_derive;
 
+extern crate notify;
 extern crate time;
 extern crate toml;
+
+use std::thread;
+use std::time::Duration;
+
+use std::sync::mpsc::{channel, Sender, Receiver, TryRecvError};
 
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::io::Read;
+
+use time::get_time;
+use notify::{RecommendedWatcher, Watcher, RecursiveMode, DebouncedEvent};
 
 mod bar;
 mod block;
@@ -20,15 +29,15 @@ use bar::Bar;
 use module::Module;
 use block::Block;
 use blocks::*;
-use util::{Align, WindowManagers};
+use util::{Align, WindowManagers, run_i32, run_bg};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 struct Config {
     bar: CBar,
     module: Option<Vec<CModule>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 struct CBar {
     update_interval: u64,
     separator: Option<String>,
@@ -38,7 +47,7 @@ struct CBar {
     block: Option<Vec<CBlock>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 struct CModule {
     align: Option<String>,
     separator: Option<String>,
@@ -47,7 +56,7 @@ struct CModule {
     block: Option<Vec<CBlock>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 struct CBlock {
     kind: String,
     icon: Option<String>,
@@ -251,9 +260,7 @@ fn build_module(cmodule: &CModule) -> Module {
     module
 }
 
-fn main() {
-    let config: Config = parse_config();
-
+fn setup(config: &Config) -> Bar {
     // Set up bar
     let mut bar = Bar::new(config.bar.update_interval);
 
@@ -276,26 +283,95 @@ fn main() {
         }
     }
 
-    // Set up modules
-    let mut modules: Vec<Module> = Vec::new();
+    // Set up and add modules
+    if let Some(ref modules) = config.module {
+        for cmodule in modules {
+            let mut module = build_module(cmodule);
 
-    if let Some(ref cmodules) = config.module {
-        for module in cmodules {
-            modules.push(build_module(module));
+            if let Some(ref bg) = config.bar.background {
+                module.set_global_background(bg);
+            }
+
+            if let Some(ref fg) = config.bar.foreground {
+                module.set_global_foreground(fg);
+            }
+
+            bar.add_module(module);
         }
     }
 
-    // Add modules
-    for module in modules {
-        bar.add_module(module);
-    }
+    bar
+}
 
-    // TODO: Subprocess lemonbar
-    // Run
-    if let Some(ref wm) = config.bar.wm {
-        match wm.as_ref() {
-            "bspwm" => bar.subscribe(WindowManagers::Bspwm),
-            _ => bar.display(),
+fn display(bar: Bar, rx: &Receiver<DebouncedEvent>) {
+    loop {
+        bar.run();
+
+        thread::sleep(Duration::from_secs(bar.update_interval));
+
+        match rx.try_recv() {
+            Ok(_) | Err(TryRecvError::Disconnected) => break,
+            Err(TryRecvError::Empty) => {},
         }
+    }
+}
+
+fn subscribe(bar: Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
+    match wsp {
+        // Just bspwm for now
+        _ => run_bg("bspc subscribe > /tmp/rustabari_subscribe"),
+    };
+
+    let inital = get_time().sec;
+    let mut previous = 0;
+    let mut file_length = run_i32("cat /tmp/rustabari_subscribe | wc -l");
+
+    loop {
+        let len = run_i32("cat /tmp/rustabari_subscribe | wc -l");
+        let elapsed = get_time().sec - inital;
+
+        // Update on WM action and every `self.update_interval` seconds
+        if len != file_length {
+            file_length = len;
+
+            bar.run();
+        } else if elapsed != previous && elapsed as u64 % bar.update_interval == 0 {
+            previous = elapsed;
+
+            bar.run();
+        }
+
+        thread::sleep(Duration::from_millis(100));
+
+        match rx.try_recv() {
+            Ok(_) | Err(TryRecvError::Disconnected) => break,
+            Err(TryRecvError::Empty) => {},
+        }
+    }
+}
+
+fn main() {
+    let mut config: Config = parse_config();
+    let mut bar = setup(&config);
+
+    let (tx, rx): (Sender<DebouncedEvent>, Receiver<DebouncedEvent>) = channel();
+
+    // Monitor config for changes
+    let mut watcher: RecommendedWatcher = Watcher::new(tx, Duration::from_secs(2))
+        .unwrap_or_else(|e| panic!("Error watching config: {}", e));
+    let _ = watcher.watch(create_config(), RecursiveMode::NonRecursive);
+
+    loop {
+        // TODO: Subprocess lemonbar
+        // Run
+        if let Some(ref wm) = config.bar.wm {
+            match wm.as_ref() {
+                "bspwm" => subscribe(bar, WindowManagers::Bspwm, &rx),
+                _ => display(bar, &rx),
+            }
+        }
+
+        config = parse_config();
+        bar = setup(&config);
     }
 }

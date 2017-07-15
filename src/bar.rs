@@ -7,7 +7,7 @@ use module::Module;
 use util::{WindowManagers, run_bg, run_i32};
 
 pub struct Bar {
-    update_interval: u64,
+    pub update_interval: u64,
     blocks: Vec<Box<Block>>,
     modules: Vec<Module>,
     separator: Option<String>,
@@ -51,7 +51,7 @@ impl Bar {
         self.modules.push(group);
     }
 
-    fn run(&mut self) {
+    pub fn run(&self) {
         // Print background and foreground
         if let Some(ref bg) = self.background {
             print!("%{{B{}}}", bg);
@@ -76,22 +76,14 @@ impl Bar {
         }
 
         // Print each module
-        for group in &mut self.modules {
-            if let Some(ref bg) = self.background {
-                group.set_global_background(bg);
-            }
-
-            if let Some(ref fg) = self.foreground {
-                group.set_global_foreground(fg);
-            }
-
-            print!("{}", group.output());
+        for module in &self.modules {
+            print!("{}", module.output());
         }
 
         println!("");
     }
 
-    pub fn display(&mut self) {
+    pub fn display(&self) {
         loop {
             self.run();
 
@@ -99,7 +91,7 @@ impl Bar {
         }
     }
 
-    pub fn subscribe(&mut self, wsp: WindowManagers) {
+    pub fn subscribe(&self, wsp: WindowManagers) {
         match wsp {
             // Just bspwm for now
             _ => run_bg("bspc subscribe > /tmp/rustabari_subscribe"),

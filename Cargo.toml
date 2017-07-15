@@ -4,6 +4,7 @@ version = "0.1.1"
 authors = ["Alex Taylor <alex@subnomo.me>"]
 
 [dependencies]
+notify = "4.0.1"
 serde = "0.9.8"
 serde_derive = "0.9.8"
 time = "0.1.36"
