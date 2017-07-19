@@ -1,6 +1,6 @@
 [package]
 name = "rustabari"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Alex Taylor <alex@subnomo.me>"]
 
 [dependencies]
