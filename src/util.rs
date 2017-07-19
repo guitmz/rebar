@@ -42,10 +42,14 @@ pub fn run_i32<T: Into<String>>(cmd: T) -> i32 {
     })
 }
 
-#[allow(unused_must_use)]
-pub fn run_bg<T: Into<String>>(cmd: T) {
-    Command::new("bash")
+pub fn run_bg<T: Into<String>>(cmd: T) -> u32 {
+    let process = Command::new("bash")
         .arg("-c")
         .arg(cmd.into())
         .spawn();
+
+    match process {
+        Ok(p) => { p.id() },
+        Err(e) => panic!("Could not start background process! Err: {}", e),
+    }
 }

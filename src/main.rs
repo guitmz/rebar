@@ -1,6 +1,10 @@
 #[macro_use]
 extern crate serde_derive;
 
+#[macro_use]
+extern crate chan;
+extern crate chan_signal;
+
 extern crate notify;
 extern crate time;
 extern crate toml;
@@ -17,6 +21,7 @@ use std::io::Read;
 
 use time::get_time;
 use notify::{RecommendedWatcher, Watcher, RecursiveMode, DebouncedEvent};
+use chan_signal::Signal;
 
 mod bar;
 mod block;
@@ -319,7 +324,7 @@ fn display(bar: Bar, rx: &Receiver<DebouncedEvent>) {
 fn subscribe(bar: Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
     match wsp {
         // Just bspwm for now
-        _ => run_bg("bspc subscribe > /tmp/rustabari_subscribe"),
+        _ => run_bg("bspc subscribe | tee /tmp/rustabari_subscribe &> /dev/null"),
     };
 
     let inital = get_time().sec;
@@ -350,10 +355,7 @@ fn subscribe(bar: Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
     }
 }
 
-fn main() {
-    let mut config: Config = parse_config();
-    let mut bar = setup(&config);
-
+fn run(_sdone: chan::Sender<()>) {
     let (tx, rx): (Sender<DebouncedEvent>, Receiver<DebouncedEvent>) = channel();
 
     // Monitor config for changes
@@ -362,6 +364,9 @@ fn main() {
     let _ = watcher.watch(create_config(), RecursiveMode::NonRecursive);
 
     loop {
+        let config = parse_config();
+        let bar = setup(&config);
+
         // TODO: Subprocess lemonbar
         // Run
         if let Some(ref wm) = config.bar.wm {
@@ -370,8 +375,30 @@ fn main() {
                 _ => display(bar, &rx),
             }
         }
+    }
+}
 
-        config = parse_config();
-        bar = setup(&config);
+fn cleanup() {
+    run_bg("killall bspc &> /dev/null");
+    run_bg("rm /tmp/rustabari_subscribe");
+}
+
+fn main() {
+    // Listen for SIGINT and SIGTERM
+    let signal = chan_signal::notify(&[Signal::INT, Signal::TERM]);
+    let (sdone, rdone) = chan::sync(0);
+
+    // Run
+    let _ = thread::Builder::new().name("main".to_string()).spawn(move || run(sdone));
+
+    // Cleanup on kill
+    chan_select! {
+        signal.recv() => {
+            cleanup();
+        },
+
+        rdone.recv() => {
+            println!("Done!");
+        }
     }
 }
