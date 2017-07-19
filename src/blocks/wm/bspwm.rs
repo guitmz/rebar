@@ -31,8 +31,6 @@ impl WindowManager for Bspwm {
     }
 
     fn current_desktop(&self) -> i32 {
-        let current = run_i32("bspc query -D -d | tail -c 2 | bc");
-
-        current - 2
+        run_i32("bspc query -D -d --names")
     }
 }

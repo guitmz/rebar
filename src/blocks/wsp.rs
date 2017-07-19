@@ -46,7 +46,7 @@ impl Block for Wsp {
         let mut out = String::new();
 
         for desktop in 0..num {
-            if desktop == current - 1 {
+            if desktop == current {
                 out.push_str(&self.active_icon);
             } else {
                 out.push_str(&self.icon);
