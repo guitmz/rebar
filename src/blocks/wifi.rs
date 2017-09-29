@@ -15,7 +15,7 @@ impl Wifi {
         Wifi {
             icon: None,
             icons: None,
-            ssid_cmd: String::from("iw dev {} link | grep SSID: | cut -d' ' -f2"),
+            ssid_cmd: String::from("iw dev {} link | grep SSID: | cut -d' ' -f2-"),
             strength_cmd: String::from("iw dev {} link | grep signal: | cut -d' ' -f2"),
             device: String::from("wlan0"),
         }
