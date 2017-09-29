@@ -1,14 +1,14 @@
 use block::Block;
-use util::Align;
+use util::{Align, opacity_to_hex};
 
 pub struct Module {
     blocks: Vec<Box<Block>>,
     align: Option<String>,
     separator: Option<String>,
     background: Option<String>,
+    background_opacity: Option<String>,
     foreground: Option<String>,
-    global_background: Option<String>,
-    global_foreground: Option<String>,
+    foreground_opacity: Option<String>,
 }
 
 impl Module {
@@ -23,9 +23,9 @@ impl Module {
             },
             separator: None,
             background: None,
+            background_opacity: None,
             foreground: None,
-            global_background: None,
-            global_foreground: None,
+            foreground_opacity: None,
         }
     }
 
@@ -33,28 +33,23 @@ impl Module {
         self.background = Some(String::from(color));
     }
 
+    pub fn set_background_opacity(&mut self, opacity: u32) {
+        self.background_opacity = Some(opacity_to_hex(opacity));
+    }
+
     pub fn set_foreground(&mut self, color: &str) {
         self.foreground = Some(String::from(color));
     }
 
-    pub fn set_global_background(&mut self, color: &str) {
-        self.global_background = Some(String::from(color));
+    pub fn set_foreground_opacity(&mut self, opacity: u32) {
+        self.foreground_opacity = Some(opacity_to_hex(opacity));
     }
-
-    pub fn set_global_foreground(&mut self, color: &str) {
-        self.global_foreground = Some(String::from(color));
-    }
-
 
     pub fn add_separator(&mut self, sep: &str) {
         self.separator = Some(String::from(sep));
     }
 
-    pub fn add<T: Block + 'static>(&mut self, block: T) {
-        self.blocks.push(Box::new(block));
-    }
-
-    pub fn add_boxed(&mut self, block: Box<Block>) {
+    pub fn add(&mut self, block: Box<Block>) {
         self.blocks.push(block);
     }
 
@@ -79,15 +74,21 @@ impl Module {
         let mut res = String::new();
 
         if let Some(ref bg) = self.background {
-            res.push_str(&format!("%{{B{}}}", bg));
-        } else if let Some(ref bg) = self.global_background {
-            res.push_str(&format!("%{{B{}}}", bg));
+            if let Some(ref bgo) = self.background_opacity {
+                let argb = String::from("#") + bgo + &bg[1..];
+                res.push_str(&format!("%{{B{}}}", argb));
+            } else {
+                res.push_str(&format!("%{{B{}}}", bg));
+            }
         }
 
         if let Some(ref fg) = self.foreground {
-            res.push_str(&format!("%{{F{}}}", fg));
-        } else if let Some(ref fg) = self.global_foreground {
-            res.push_str(&format!("%{{F{}}}", fg));
+            if let Some(ref fgo) = self.foreground_opacity {
+                let argb = String::from("#") + fgo + &fg[1..];
+                res.push_str(&format!("%{{F{}}}", argb));
+            } else {
+                res.push_str(&format!("%{{F{}}}", fg));
+            }
         }
 
         if let Some(ref align) = self.align {

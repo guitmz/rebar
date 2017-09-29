@@ -53,3 +53,14 @@ pub fn run_bg<T: Into<String>>(cmd: T) -> u32 {
         Err(e) => panic!("Could not start background process! Err: {}", e),
     }
 }
+
+pub fn opacity_to_hex(opacity: u32) -> String {
+    let alpha = (2.55 * opacity as f32) as u32;
+    let mut alpha_hex = format!("{:x}", alpha);
+
+    if alpha_hex.len() == 1 {
+        alpha_hex = String::from("0") + &alpha_hex;
+    }
+
+    alpha_hex
+}

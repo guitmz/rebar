@@ -34,7 +34,7 @@ use bar::Bar;
 use module::Module;
 use block::Block;
 use blocks::*;
-use util::{Align, WindowManagers, run_i32, run_bg};
+use util::{Align, WindowManagers, run_command, run_i32, run_bg};
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 struct Config {
@@ -47,7 +47,9 @@ struct CBar {
     update_interval: u64,
     separator: Option<String>,
     background: Option<String>,
+    background_opacity: Option<u32>,
     foreground: Option<String>,
+    foreground_opacity: Option<u32>,
     wm: Option<String>,
     block: Option<Vec<CBlock>>,
 }
@@ -57,7 +59,9 @@ struct CModule {
     align: Option<String>,
     separator: Option<String>,
     background: Option<String>,
+    background_opacity: Option<u32>,
     foreground: Option<String>,
+    foreground_opacity: Option<u32>,
     block: Option<Vec<CBlock>>,
 }
 
@@ -252,13 +256,21 @@ fn build_module(cmodule: &CModule) -> Module {
         module.set_background(bg);
     }
 
+    if let Some(ref bgo) = cmodule.background_opacity {
+        module.set_background_opacity(*bgo);
+    }
+
     if let Some(ref fg) = cmodule.foreground {
         module.set_foreground(fg);
     }
 
+    if let Some(ref fgo) = cmodule.foreground_opacity {
+        module.set_foreground_opacity(*fgo);
+    }
+
     if let Some(ref blocks) = cmodule.block {
         for block in blocks {
-            module.add_boxed(build_block(&block));
+            module.add(build_block(&block));
         }
     }
 
@@ -277,14 +289,22 @@ fn setup(config: &Config) -> Bar {
         bar.set_background(bg);
     }
 
+    if let Some(ref bgo) = config.bar.background_opacity {
+        bar.set_background_opacity(*bgo);
+    }
+
     if let Some(ref fg) = config.bar.foreground {
         bar.set_foreground(fg);
+    }
+
+    if let Some(ref fgo) = config.bar.foreground_opacity {
+        bar.set_foreground_opacity(*fgo);
     }
 
     // Add blocks
     if let Some(ref blocks) = config.bar.block {
         for block in blocks {
-            bar.add_boxed(build_block(&block));
+            bar.add_block(build_block(&block));
         }
     }
 
@@ -293,12 +313,33 @@ fn setup(config: &Config) -> Bar {
         for cmodule in modules {
             let mut module = build_module(cmodule);
 
-            if let Some(ref bg) = config.bar.background {
-                module.set_global_background(bg);
+            // If the modules do not have their own colors, inherit from bar
+            match cmodule.background {
+                None => {
+                    if let Some(ref bg) = config.bar.background {
+                        module.set_background(bg);
+                    }
+
+                    if let Some(ref bgo) = config.bar.background_opacity {
+                        module.set_background_opacity(*bgo);
+                    }
+                },
+
+                _ => {}
             }
 
-            if let Some(ref fg) = config.bar.foreground {
-                module.set_global_foreground(fg);
+            match cmodule.foreground {
+                None => {
+                    if let Some(ref fg) = config.bar.foreground {
+                        module.set_foreground(fg);
+                    }
+
+                    if let Some(ref fgo) = config.bar.foreground_opacity {
+                        module.set_foreground_opacity(*fgo);
+                    }
+                },
+
+                _ => {}
             }
 
             bar.add_module(module);
@@ -327,13 +368,13 @@ fn subscribe(bar: Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
         _ => run_bg("bspc subscribe | tee /tmp/rustabari_subscribe &> /dev/null"),
     };
 
-    let inital = get_time().sec;
+    let initial = get_time().sec;
     let mut previous = 0;
     let mut file_length = run_i32("cat /tmp/rustabari_subscribe | wc -l");
 
     loop {
         let len = run_i32("cat /tmp/rustabari_subscribe | wc -l");
-        let elapsed = get_time().sec - inital;
+        let elapsed = get_time().sec - initial;
 
         // Update on WM action and every `self.update_interval` seconds
         if len != file_length {
@@ -375,12 +416,15 @@ fn run(_sdone: chan::Sender<()>) {
                 _ => display(bar, &rx),
             }
         }
+
+        // When display loop breaks, cleanup and start again
+        cleanup();
     }
 }
 
 fn cleanup() {
-    run_bg("killall bspc &> /dev/null");
-    run_bg("rm /tmp/rustabari_subscribe");
+    run_command("killall bspc &> /dev/null");
+    run_command("rm /tmp/rustabari_subscribe");
 }
 
 fn main() {

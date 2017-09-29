@@ -1,10 +1,6 @@
-use std::thread;
-use std::time::Duration;
-use time::get_time;
-
 use block::Block;
 use module::Module;
-use util::{WindowManagers, run_bg, run_i32};
+use util::opacity_to_hex;
 
 pub struct Bar {
     pub update_interval: u64,
@@ -12,7 +8,9 @@ pub struct Bar {
     modules: Vec<Module>,
     separator: Option<String>,
     background: Option<String>,
+    background_opacity: Option<String>,
     foreground: Option<String>,
+    foreground_opacity: Option<String>,
 }
 
 impl Bar {
@@ -23,7 +21,9 @@ impl Bar {
             modules: Vec::new(),
             separator: None,
             background: None,
+            background_opacity: None,
             foreground: None,
+            foreground_opacity: None,
         }
     }
 
@@ -31,19 +31,23 @@ impl Bar {
         self.background = Some(String::from(color));
     }
 
+    pub fn set_background_opacity(&mut self, opacity: u32) {
+        self.background_opacity = Some(opacity_to_hex(opacity));
+    }
+
     pub fn set_foreground(&mut self, color: &str) {
         self.foreground = Some(String::from(color));
+    }
+
+    pub fn set_foreground_opacity(&mut self, opacity: u32) {
+        self.foreground_opacity = Some(opacity_to_hex(opacity));
     }
 
     pub fn set_separator(&mut self, sep: &str) {
         self.separator = Some(String::from(sep));
     }
 
-    pub fn add_block<T: Block + 'static>(&mut self, block: T) {
-        self.blocks.push(Box::new(block));
-    }
-
-    pub fn add_boxed(&mut self, block: Box<Block>) {
+    pub fn add_block(&mut self, block: Box<Block>) {
         self.blocks.push(block);
     }
 
@@ -54,11 +58,25 @@ impl Bar {
     pub fn run(&self) {
         // Print background and foreground
         if let Some(ref bg) = self.background {
-            print!("%{{B{}}}", bg);
+            if let Some(ref bgo) = self.background_opacity {
+                let argb = String::from("#") + bgo + &bg[1..];
+                print!("%{{B{}}}", argb);
+            } else {
+                print!("%{{B{}}}", bg);
+            }
+        } else {
+            print!("%{{B-}}");
         }
 
         if let Some(ref fg) = self.foreground {
-            print!("%{{F{}}}", fg);
+            if let Some(ref fgo) = self.foreground_opacity {
+                let argb = String::from("#") + fgo + &fg[1..];
+                print!("%{{F{}}}", argb);
+            } else {
+                print!("%{{F{}}}", fg);
+            }
+        } else {
+            print!("%{{F-}}");
         }
 
         // Print blocks added to bar
@@ -81,42 +99,5 @@ impl Bar {
         }
 
         println!("");
-    }
-
-    pub fn display(&self) {
-        loop {
-            self.run();
-
-            thread::sleep(Duration::from_secs(self.update_interval));
-        }
-    }
-
-    pub fn subscribe(&self, wsp: WindowManagers) {
-        match wsp {
-            // Just bspwm for now
-            _ => run_bg("bspc subscribe > /tmp/rustabari_subscribe"),
-        };
-
-        let inital = get_time().sec;
-        let mut previous = 0;
-        let mut file_length = run_i32("cat /tmp/rustabari_subscribe | wc -l");
-
-        loop {
-            let len = run_i32("cat /tmp/rustabari_subscribe | wc -l");
-            let elapsed = get_time().sec - inital;
-
-            // Update on WM action and every `self.update_interval` seconds
-            if len != file_length {
-                file_length = len;
-
-                self.run();
-            } else if elapsed != previous && elapsed as u64 % self.update_interval == 0 {
-                previous = elapsed;
-
-                self.run();
-            }
-
-            thread::sleep(Duration::from_millis(100));
-        }
     }
 }
