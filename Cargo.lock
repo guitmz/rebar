@@ -1,5 +1,5 @@
 [root]
-name = "rustabari"
+name = "rebar"
 version = "0.2.0"
 dependencies = [
  "chan 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)",

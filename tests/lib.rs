@@ -1,9 +1,9 @@
-extern crate rustabari;
+extern crate rebar;
 
-use rustabari::block::Block;
-use rustabari::module::Module;
-use rustabari::blocks::Date;
-use rustabari::util::Align;
+use rebar::block::Block;
+use rebar::module::Module;
+use rebar::blocks::Date;
+use rebar::util::Align;
 
 #[test]
 fn test_module() {

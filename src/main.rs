@@ -84,7 +84,7 @@ fn create_config() -> PathBuf {
         None => panic!("Couldn't get home directory!"),
     };
 
-    let folder = format!("{}{}", home.display(), "/.config/rustabari");
+    let folder = format!("{}{}", home.display(), "/.config/rebar");
     let file = format!("{}{}", folder, "/config.toml");
     let conf_dir = Path::new(folder.as_str());
     let conf_file = Path::new(file.as_str());
@@ -365,15 +365,15 @@ fn display(bar: Bar, rx: &Receiver<DebouncedEvent>) {
 fn subscribe(bar: Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
     match wsp {
         // Just bspwm for now
-        _ => run_bg("bspc subscribe | tee /tmp/rustabari_subscribe &> /dev/null"),
+        _ => run_bg("bspc subscribe | tee /tmp/rebar_subscribe &> /dev/null"),
     };
 
     let initial = get_time().sec;
     let mut previous = 0;
-    let mut file_length = run_i32("cat /tmp/rustabari_subscribe | wc -l");
+    let mut file_length = run_i32("cat /tmp/rebar_subscribe | wc -l");
 
     loop {
-        let len = run_i32("cat /tmp/rustabari_subscribe | wc -l");
+        let len = run_i32("cat /tmp/rebar_subscribe | wc -l");
         let elapsed = get_time().sec - initial;
 
         // Update on WM action and every `self.update_interval` seconds
@@ -424,7 +424,7 @@ fn run(_sdone: chan::Sender<()>) {
 
 fn cleanup() {
     run_command("killall bspc &> /dev/null");
-    run_command("rm /tmp/rustabari_subscribe");
+    run_command("rm /tmp/rebar_subscribe");
 }
 
 fn main() {

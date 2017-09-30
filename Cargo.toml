@@ -1,5 +1,5 @@
 [package]
-name = "rustabari"
+name = "rebar"
 version = "0.2.0"
 authors = ["Alex Taylor <alex@subnomo.me>"]
 
