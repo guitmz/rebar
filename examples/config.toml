@@ -1,6 +1,6 @@
 [bar]
 # Update interval, in seconds
-update_interval = 1
+update_interval = 3
 
 separator = " | "
 foreground = "#444444"
@@ -40,7 +40,7 @@ separator = " | "
 
     [[module.block]]
     kind = "music"
-    command = "gpmdp-remote current"
+    command = "mpc current"
     icon = "\uE1A6"
     icon_align = "left"
 
@@ -49,6 +49,7 @@ separator = " | "
     # icon = "\uE1FF"
     icons = ["\uE1FD", "\uE1FE", "\uE1FF"]
     icon_align = "right"
+    monitor_battery = true
 
     [[module.block]]
     kind = "date"

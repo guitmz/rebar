@@ -76,6 +76,7 @@ struct CBlock {
     command: Option<String>,
     format: Option<String>,
     max_chars: Option<usize>,
+    monitor_battery: Option<bool>,
 }
 
 fn create_config() -> PathBuf {
@@ -139,7 +140,11 @@ fn align<T: Into<String>>(align_string: T) -> Align {
 fn build_block(block: &CBlock) -> Box<Block> {
     return match block.kind.as_ref() {
         "battery" => {
-            let mut battery = Battery::new();
+            let mut battery = if let Some(ref monitor) = block.monitor_battery {
+                Battery::new(*monitor)
+            } else {
+                Battery::new(false)
+            };
 
             // Add icon(s)
             if let Some(ref icon_align) = block.icon_align {
@@ -349,7 +354,7 @@ fn setup(config: &Config) -> Bar {
     bar
 }
 
-fn display(bar: Bar, rx: &Receiver<DebouncedEvent>) {
+fn display(bar: &mut Bar, rx: &Receiver<DebouncedEvent>) {
     loop {
         bar.run();
 
@@ -362,7 +367,7 @@ fn display(bar: Bar, rx: &Receiver<DebouncedEvent>) {
     }
 }
 
-fn subscribe(bar: Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
+fn subscribe(bar: &mut Bar, wsp: WindowManagers, rx: &Receiver<DebouncedEvent>) {
     match wsp {
         // Just bspwm for now
         _ => run_bg("bspc subscribe | tee /tmp/rebar_subscribe &> /dev/null"),
@@ -406,14 +411,14 @@ fn run(_sdone: chan::Sender<()>) {
 
     loop {
         let config = parse_config();
-        let bar = setup(&config);
+        let mut bar = setup(&config);
 
         // TODO: Subprocess lemonbar
         // Run
         if let Some(ref wm) = config.bar.wm {
             match wm.as_ref() {
-                "bspwm" => subscribe(bar, WindowManagers::Bspwm, &rx),
-                _ => display(bar, &rx),
+                "bspwm" => subscribe(&mut bar, WindowManagers::Bspwm, &rx),
+                _ => display(&mut bar, &rx),
             }
         }
 

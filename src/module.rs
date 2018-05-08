@@ -53,17 +53,21 @@ impl Module {
         self.blocks.push(block);
     }
 
-    pub fn output(&self) -> String {
+    pub fn output(&mut self) -> String {
         let mut out = String::new();
 
         // Add each block
-        for i in 0..self.blocks.len() {
-            let block = &self.blocks[i];
+        let len = self.blocks.len();
 
+        for i in 0..len {
+            let mut block = &mut self.blocks[i];
+
+            // Run tasks, then output
+            block.tasks();
             out.push_str(&block.output());
 
             // Only print separator if not last block
-            if i < self.blocks.len() - 1 {
+            if i < len - 1 {
                 match self.separator.to_owned() {
                     Some(s) => out.push_str(s.as_str()),
                     None => out.push(' '),

@@ -1,19 +1,25 @@
 use std::process::Command;
 
 use block::Block;
-use util::Align;
+use util::{Align, run_bg};
 
 #[derive(Default)]
 pub struct Battery {
-    pub icon: Option<(String, Align)>,
-    pub icons: Option<(Vec<String>, Align)>,
+    icon: Option<(String, Align)>,
+    icons: Option<(Vec<String>, Align)>,
+    monitor_battery: bool,
+    sleep_cooldown: bool,
+    warn_cooldown: bool,
 }
 
 impl Battery {
-    pub fn new() -> Battery {
+    pub fn new(monitor: bool) -> Battery {
         Battery {
             icon: None,
             icons: None,
+            monitor_battery: monitor,
+            sleep_cooldown: false,
+            warn_cooldown: false,
         }
     }
 
@@ -51,29 +57,56 @@ impl Battery {
 
         battery
     }
+
+    // Monitors battery usage.
+    fn monitor(&mut self) {
+        let battery = self.get_battery()
+            .parse::<i32>()
+            .unwrap_or_else(|e| {
+                panic!("Couldn't parse battery. Error: {}", e);
+            });
+
+        // If <= 2%, hybrid suspend (to RAM and disk)
+        // If <= 5%, warn
+        let sleep_pct = 2;
+        let warning_pct = 5;
+
+        // Reset cooldowns when charged above warning_pct
+        if battery > warning_pct {
+            self.sleep_cooldown = false;
+            self.warn_cooldown = false;
+        }
+
+        if battery <= sleep_pct && !self.sleep_cooldown {
+            self.sleep_cooldown = true;
+            run_bg("systemctl hybrid-sleep");
+        } else if battery <= warning_pct && !self.warn_cooldown {
+            self.warn_cooldown = true;
+            run_bg("notify-send 'Battery low!'");
+        }
+    }
 }
 
 impl Block for Battery {
     fn new() -> Battery {
-        Battery::new()
+        Battery::new(false)
     }
 
     fn output(&self) -> String {
+        let battery_string = self.get_battery();
+        let battery = battery_string.parse::<i32>()
+            .unwrap_or_else(|e| {
+                panic!("Couldn't parse battery. Error: {}", e);
+            });
+
         if let Some((ref icon, ref align)) = self.icon {
             match *align {
-                Align::Right => return format!("{}% {}", self.get_battery(), icon),
-                _ => return format!("{} {}%", icon, self.get_battery()),
+                Align::Right => return format!("{}% {}", battery_string, icon),
+                _ => return format!("{} {}%", icon, battery_string),
             }
         }
 
         if let Some((ref icons, ref align)) = self.icons {
-            let battery = self.get_battery()
-                              .parse::<i32>()
-                              .unwrap_or_else(|e| {
-
-                                  panic!("Couldn't parse battery. Error: {}", e);
-                              });
-
             let icon: usize;
 
             if battery > 66 {
@@ -90,6 +123,12 @@ impl Block for Battery {
             }
         }
 
-        self.get_battery()
+        battery_string
+    }
+
+    fn tasks(&mut self) {
+        if self.monitor_battery {
+            self.monitor();
+        }
     }
 }

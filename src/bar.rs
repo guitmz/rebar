@@ -55,7 +55,7 @@ impl Bar {
         self.modules.push(group);
     }
 
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         // Print background and foreground
         if let Some(ref bg) = self.background {
             if let Some(ref bgo) = self.background_opacity {
@@ -80,13 +80,17 @@ impl Bar {
         }
 
         // Print blocks added to bar
-        for i in 0..self.blocks.len() {
-            let block = &self.blocks[i];
+        let len = self.blocks.len();
 
+        for i in 0..len {
+            let mut block = &mut self.blocks[i];
+
+            // Run block tasks, then output
+            block.tasks();
             print!("{}", block.output());
 
             // Only print separator if not last block
-            if i < self.blocks.len() - 1 {
+            if i < len - 1 {
                 if let Some(ref s) = self.separator {
                     print!("{}", s);
                 }
@@ -94,7 +98,7 @@ impl Bar {
         }
 
         // Print each module
-        for module in &self.modules {
+        for module in &mut self.modules {
             print!("{}", module.output());
         }
 
