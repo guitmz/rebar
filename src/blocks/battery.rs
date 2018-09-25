@@ -18,8 +18,8 @@ impl Battery {
             icon: None,
             icons: None,
             monitor_battery: monitor,
-            sleep_cooldown: false,
-            warn_cooldown: false,
+            sleep_cooldown: true,
+            warn_cooldown: true,
         }
     }
 
@@ -39,23 +39,16 @@ impl Battery {
     }
 
     fn get_battery(&self) -> String {
-        // Get battery percentage using acpi command
-        let acpi = Command::new("acpi")
-            .arg("-b")
+        // Get battery percentage /sys/class/power_supply
+        let acpi = Command::new("cat")
+            .arg("/sys/class/power_supply/BAT0/capacity")
             .output().unwrap_or_else(|e| {
                 panic!("failed to execute process: {}", e);
             });
 
         let battery_cow = String::from_utf8_lossy(&acpi.stdout);
-        let mut battery = battery_cow.split_whitespace().nth(3).unwrap().to_string();
-        let len = battery.len();
 
-        // Remove end comma and percent sign
-        if len > 1 {
-            battery.truncate(len - 2);
-        }
-
-        battery
+        battery_cow.trim().to_string()
     }
 
     // Monitors battery usage.
@@ -63,7 +56,7 @@ impl Battery {
         let battery = self.get_battery()
             .parse::<i32>()
             .unwrap_or_else(|e| {
-                panic!("Couldn't parse battery. Error: {}", e);
+                panic!("Couldn't parse battery {}. Error: {}", self.get_battery(), e);
             });
 
         // If <= 2%, hybrid suspend (to RAM and disk)
@@ -82,7 +75,7 @@ impl Battery {
             run_bg("systemctl hybrid-sleep");
         } else if battery <= warning_pct && !self.warn_cooldown {
             self.warn_cooldown = true;
-            run_bg("notify-send 'Battery low!'");
+            run_bg("notify-send -u critical 'Battery low!'");
         }
     }
 }
